@@ -20,20 +20,24 @@ useEffect(()=> {
 async function newCard() {
    
     const res = await axios.get(url);
-    if (res.data.remaining === 0) {
-        throw new Error("no cards remaining!");
-      }
+
     const card = res.data.cards[0].value;
-    setDeck(card);
+    setDeck(card); 
 }
 
 const [seconds, setSeconds] = useState(0);
 const timerId = useRef();
 
-useEffect(()=> {
+ useEffect(()=> {
+    let counter = 0;
     timerId.current = setInterval(()=>{
         setSeconds(seconds => seconds + 1)
         newCard()
+        counter ++;
+        console.log(counter)
+        if (counter === 52) {
+            throw new Error("no cards remaining!");
+          }
     }, 1000)
     return () => {
         clearInterval(timerId.current)
@@ -43,13 +47,27 @@ useEffect(()=> {
 const stopTimer = ()=>{
     clearInterval(timerId.current)
 }
-
-const stop = <button onClick={stopTimer}>Stop Drawing</button>
-const start =  <button onClick={newCard}>Start Drawing</button>
+const startTimer = () => {
+  let counter = 0;
+  return timerId.current = setInterval(()=>{
+    setSeconds(seconds => seconds + 1)
+    newCard()
+    counter ++;
+    console.log(counter)
+    if (counter === 52) {
+        throw new Error("no cards remaining!");
+      }
+}, 1000)
+}
+// const stop = <button onClick={newCard ? stopTimer : newCard}>Stop/Start</button>
+const stop =  <button onClick={stopTimer}>Stop Drawing</button>
+const start = <button onClick={startTimer}>Start Drawing</button>
     return (
         <div>
             {deck ? <h1> Card {deck}</h1> : <h1>Loading...</h1>}
-            {stop ? stop : start}
+            {stop}
+            {start}
+          
         </div>
     )
 }
